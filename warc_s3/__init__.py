@@ -5,7 +5,15 @@ from itertools import islice
 from pathlib import Path
 from shutil import copyfileobj
 from tempfile import TemporaryFile
-from typing import IO, NamedTuple, Iterable, Iterator, Optional, Sequence
+from typing import (
+    IO,
+    NamedTuple,
+    Iterable,
+    Iterator,
+    Optional,
+    Sequence,
+    MutableSequence,
+)
 from uuid import uuid4
 from warnings import warn
 
@@ -59,11 +67,10 @@ def _write_records(
     else:
         records_slice = islice(records, max_file_records)
     for record in records_slice:
-        record_buffer: list[_WarcCacheRecord] = []
+        record_buffer: MutableSequence[_WarcCacheRecord] = []
 
         offset = file.tell()
-        with TemporaryFile() as tmp_file:   
-
+        with TemporaryFile() as tmp_file:
             # Write record to temporary file.
             with GzipFile(fileobj=tmp_file, mode="wb") as tmp_gzip_file:
                 writer = WARCWriter(tmp_gzip_file, gzip=False)
