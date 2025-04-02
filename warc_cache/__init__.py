@@ -3,6 +3,7 @@ from gzip import GzipFile
 from io import BytesIO
 from itertools import islice
 from pathlib import Path
+from random import shuffle
 from shutil import copyfileobj
 from tempfile import TemporaryFile
 from typing import (
@@ -201,6 +202,8 @@ class WarcCacheStore:
                 if not file_path.name.startswith(".")
             )
         file_paths_list = list(file_paths)
+        # Shuffle file paths to avoid reading in the same order.
+        shuffle(file_paths_list)
         total_bytes = sum(file_path.stat().st_size for file_path in file_paths_list)
         if total_bytes < self.read_all_min_accumulated_bytes:
             # Skip reading files if total size is less than threshold.
