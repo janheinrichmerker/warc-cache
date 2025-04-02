@@ -204,7 +204,7 @@ class WarcCacheStore:
         file_paths_list = list(file_paths)
         # Shuffle file paths to avoid reading in the same order.
         shuffle(file_paths_list)
-        total_bytes = sum(file_path.stat().st_size for file_path in file_paths_list)
+        total_bytes = sum(file_path.stat().st_size for file_path in file_paths_list if file_path.exists())
         if total_bytes < self.read_all_min_accumulated_bytes:
             # Skip reading files if total size is less than threshold.
             if not self.quiet:
@@ -215,6 +215,8 @@ class WarcCacheStore:
 
         file_paths = file_paths_list
         for file_path in file_paths:
+            if not file_path.exists():
+                continue
             with file_path.open("rb") as file:
                 with GzipFile(fileobj=file, mode="rb") as gzip_file:
                     iterator = ArchiveIterator(gzip_file)
